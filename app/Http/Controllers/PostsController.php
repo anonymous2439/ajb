@@ -79,7 +79,14 @@ class PostsController extends Controller
      */
     public function update(Request $request, $id)
     {
-        //
+        $post = Post::find($id);
+        $post->title = $request->input('edit-title');
+        $post->description = $request->input('edit-description');
+        $post->salary = $request->input('edit-salary');
+        $post->category_id = $request->input('edit-category');
+        $post->location_id = $request->input('edit-location');
+        $post->save();
+        return response()->json(array('msg'=> 1), 200);
     }
 
     /**
@@ -90,7 +97,9 @@ class PostsController extends Controller
      */
     public function destroy($id)
     {
-        return 'destroy';
+        $post = Post::find($id);
+        $post->delete();
+        return response()->json(array('msg'=> 1), 200);
     }
 
     public function destroyall(Request $request)

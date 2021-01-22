@@ -254,7 +254,7 @@
   <div class="container">
     <div class="row">
       <div class="col-sm-12">
-         <img src="img/whyus.png" data-aos="fade-in">
+         <center><img src="img/whyus.png" data-aos="fade-in" style="width:60%"></center>
       </div>
       </div>
     	<div class="row">
@@ -320,7 +320,7 @@
 
 
   // Settings that can be overridden on per-element basis, by `data-aos-*` attributes:
-  offset: 120, // offset (in px) from the original trigger point
+  offset: 30, // offset (in px) from the original trigger point
   delay: 0, // values from 0 to 3000, with step 50ms
   duration: 800, // values from 0 to 3000, with step 50ms
   easing: 'ease', // default easing for AOS animations

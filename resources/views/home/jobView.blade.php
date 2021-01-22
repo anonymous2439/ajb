@@ -125,7 +125,7 @@
   <input type="hidden" id="email" name="email">
   <input type="hidden" name="post-id" value="{{ $post->id }}">
 <button type="submit" class="btn btn-primary" style="margin-top: 15px;" id="btnSubmit">Submit</button>
-<button type="button" class="btn btn-warning" style="margin-top: 15px;" id="btnBack">Back</button>
+<a href="/jobsearch" type="button" class="btn btn-warning" style="margin-top: 15px;" id="btnBack">Back</a>
 </form>
 
 <br><br><br><br><br><br><br><br><br><br><br><br><br><br><br><br><br><br>

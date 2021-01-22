@@ -1,99 +1,58 @@
+@extends('layouts.app')
 
-<html lang="en">
-  <head>
-    <!-- Required meta tags -->
-    <meta name="viewport" content="width=device-width, initial-scale=1, shrink-to-fit=no">
+@section('content')
 
-    <!-- Bootstrap CSS -->
+<div>
 
-    <link rel="stylesheet" href="https://stackpath.bootstrapcdn.com/bootstrap/4.3.1/css/bootstrap.min.css" integrity="sha384-ggOyR0iXCbMQv3Xipma34MD+dH/1fQ784/j6cY/iJTQUOhcWr7x9JvoRxT2MZw1T" crossorigin="anonymous">
 
-    <!-- Animation -->
-  <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/animate.css/3.7.2/animate.min.css">
 
-  <link rel="icon" type="image/gif" href="img/ajblogo.png">
-
-  <!--icons sa ubos sa mga social media -->
-  <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/4.7.0/css/font-awesome.min.css">
-
-  <link href="style.css" rel="stylesheet" />
-
-  <script src="https://ajax.googleapis.com/ajax/libs/jquery/3.2.1/jquery.min.js"></script>
-  <script src="https://maxcdn.bootstrapcdn.com/bootstrap/3.3.7/js/bootstrap.min.js"></script>
-
-  <title>AJB Human Resources & Consultancy</title>
-  </head>
-  <body>
-<div class="wrapper">
-
-<nav class="navbar navbar-default navbar-fixed-top" role="navigation">
-  <div class="container-fluid">
-       <div class="navbar-header">
+<div class="navbar navbar-light bg-dark" style="margin-bottom:0px !important">
         <a class="navbar-brand" href="/"><img class="animated bounceInLeft" src="img/ajblogo.png" width="40%"></a>
-      </div>
-  </div>
-</nav>
-
-<div class="navbar-fixed-top navbar-light bg-dark">
   @if(session('success'))
-  <div class="alert alert-success alert-dismissible fade show" role="alert">
+  <div class="alert alert-success alert-dismissible show" role="alert">
     <strong>{{ session('success') }}</strong><button type="button" class="close" data-dismiss="alert" aria-label="Close"><span aria-hidden="true">&times;</span></button>
   </div>
   @endif
-  <form class="form-inline" style="justify-content: center;">
-    <!--search-->
-    <h4 style="margin-right: 10px; color: #FFF;">Search</h4>
-    <input class="form-control mr-sm-2" type="search" id="inputSearch" aria-label="Search" placeholder="Position Title" style="width: 220px; margin:10px">
-	<div class="btn-group" style="margin:10px">
-                      <select class="button btn btn-secondary" id="selectCategory" name="selectCategory">
-                        <option value="0">Select Category</option>
-                        @foreach($categories as $category)
-                          <option value="{{ $category->id }}">{{ $category->name }}</option>
-                        @endforeach
-                      </select>
-                    </div>
 
-    <!--location-->
-
-  <div class="btn-group" style="margin: 10px;">
-                      <select class="button btn btn-secondary" id="selectLocation" name="selectLocation">
-                        <option value="0">Select Location</option>
-                        @foreach($locations as $location)
-                          <option value="{{ $location->id }}">{{ $location->name }}</option>
-                        @endforeach
-                      </select>
-                    </div>
-        <button class="btn btn-outline-success my-2 my-sm-2" type="button" style="margin-left: 10px;" id="btnGo">GO</button>
-  </form>
 </div>
+<div style="text-align:right; margin-bottom:10px; background-color:#575757; padding:15px 20px 15px 20px;">
+  <select style="height:auto" id="category">
+    <option value="0">Select Category</option>
+  @foreach($categories as $category)
+    <option value="{{ $category->id }}">{{ $category->name }}</option>
+  @endforeach
+  </select>
+  <select style="height: auto" id="location">
+    <option value="0">Select Location</option>
+    @foreach($locations as $location)
+      <option value="{{ $location->id }}">{{ $location->name }}</option>
+    @endforeach
+  </select>
+  <button class="btn btn-primary" id="filter-btn">APPLY FILTERS</button>
+</div>
+<div style="padding: 20px;">
 
-<table class="table">
-  <thead class="thead-light">
+<table class="table" id="tblPosts">
+  <thead class="thead-light" style="background-color: #e3e3e3">
     <tr>
+      <th></th>
+      <th></th>
       <th scope="col">Job Title</th>
       <th scope="col">Location</th>
       <th scope="col">Expected Salary</th>
       <th scope="col">Date Posted</th>
     </tr>
   </thead>
-  <tbody id="jobTable">
-    @foreach($posts as $post)
-      <tr>
-        <td><a href="/jobsearch/view/{{ $post->id }}">{{ $post->title }}</a></td>
-        <td>{{ $post->location->name }}</td>
-        <td>{{ $post->salary }}</td>
-        <td>{{ $post->created_at }}</td>
-      </tr>
-    @endforeach
+  <tbody>
+ 
 
   </tbody>
 </table>
+</div>
 
-
-<br><br><br><br><br><br><br><br><br><br><br><br><br><br><br><br><br><br>
     </div>
 
-<footer class="container-fluid text-center" style="bottom:0">
+<footer class="container-fluid text-center d-flex align-items-end" style="bottom:0">
   <div class="row">
     <div class="col-sm-4">
       <h4 style="padding-top: 25px;"><b><u>Contact Us</u></b></h4>
@@ -116,5 +75,72 @@
   </div>
 </footer>
 
-  </body>
-</html>
+@endsection
+
+@section('footer')
+  <script>
+    var tblPosts;
+    $(document).ready( function () {
+        tblPosts = $('#tblPosts').DataTable({
+          "ajax": {
+              "headers":{
+                'X-CSRF-TOKEN': "{{ csrf_token() }}"
+              },
+              "url": "/admin/getposts",
+            "type": "POST"
+          },
+          columnDefs: [ 
+            {
+                             "targets": [ 0 ],
+            "visible": false,
+            "searchable": false
+              },
+              {
+            "targets": [ 1 ],
+            "visible": false,
+            "searchable": false
+          },
+            ],
+            order: [[ 5, 'desc' ]],
+
+      });
+
+    } );
+
+    function getPost(id){
+      window.location.replace("/jobsearch/view/"+id);
+    }
+
+    $("#filter-btn").on("click", function(){
+      var category = $("#category").val();
+      var location = $("#location").val();
+      tblPosts.clear();
+      tblPosts.destroy();
+
+      tblPosts = $('#tblPosts').DataTable({
+          "ajax": {
+              "headers":{
+                'X-CSRF-TOKEN': "{{ csrf_token() }}"
+              },
+              "url": "/admin/getposts",
+              "type": "POST",
+              "data": {"category":category, "location":location},
+          },
+          columnDefs: [ 
+            {
+                             "targets": [ 0 ],
+            "visible": false,
+            "searchable": false
+              },
+              {
+            "targets": [ 1 ],
+            "visible": false,
+            "searchable": false
+          },
+            ],
+            order: [[ 5, 'desc' ]],
+
+      });
+    });
+  </script>
+@endsection

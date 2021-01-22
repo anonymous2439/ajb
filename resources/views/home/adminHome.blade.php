@@ -11,7 +11,7 @@
 		<div class="row" style="margin-bottom: 15px;">
 			<div class="col-md-12">
 				<button class="btn btn-primary" data-toggle="modal" data-target="#modal-add">ADD</button>
-				<button class="btn btn-warning" id="btn-delete" type="button">DELETE</button>
+				<button class="btn btn-danger" id="btn-delete" type="button">DELETE</button>
 			</div>
 		</div>
 		<div class="row">
@@ -25,6 +25,7 @@
 							<th>LOCATION</th>
 							<th>SALARY</th>
 							<th>DATE POSTED</th>
+							<th></th>
 						</tr>
 					</thead>
 					<tbody>
@@ -87,6 +88,43 @@
 		      <div class="modal-footer">
 		        <button type="button" class="btn btn-secondary" data-dismiss="modal">Close</button>
 		      </div>
+		    </div>
+		  </div>
+		</div>
+
+		<div class="modal" tabindex="-1" role="dialog" id="modal-edit">
+		  <div class="modal-dialog" role="document">
+		    <div class="modal-content">
+		      <div class="modal-header">
+		        <button type="button" class="close" data-dismiss="modal" aria-hidden="true">&times;</button>
+		        <h5 class="modal-title">Edit Post</h5>
+		      </div>
+		      <form action="/post" method="post" id="form-edit">
+		    		@csrf  
+		    		@method('put')
+			      <div class="modal-body">
+			        <label for="title">Title </label><input id="edit-title" name="edit-title" class="form-control">
+			        <label for="description">Description </label><textarea id="edit-description" name="edit-description" class="form-control" rows="5"></textarea>
+			        <label for="salary">Expected Salary </label><input id="edit-salary" name="edit-salary" class="form-control">
+			        <label>Category </label>
+			        <select class="form-control" name="edit-category" id="edit-category">
+			        	@foreach($categories as $category)
+                          <option value="{{ $category->id }}">{{ $category->name }}</option>
+                        @endforeach
+			        </select>
+			        <label>Location </label>
+			        <select class="form-control" name="edit-location" id="edit-location">
+			        	@foreach($locations as $location)
+                          <option value="{{ $location->id }}">{{ $location->name }}</option>
+                        @endforeach
+			        </select>
+			      </div>
+			      <div class="modal-footer">
+			      	<input type="hidden" id="post-id" name="post-id" value="0">
+			        <button type="button" class="btn btn-secondary" data-dismiss="modal">Close</button>
+			        <button type="button" class="btn btn-primary" id="btn-update">Save</button>
+			      </div>
+		  	  </form>
 		    </div>
 		  </div>
 		</div>
@@ -159,10 +197,9 @@
 				"url": "/post/get/"+id,
 				"type": "GET",
 				success: function(response){
-					alert(JSON.stringify(response));
 					$("#view-title").val(response["title"]);
 					$("#view-description").val(response["description"]);
-					$("#view-description").val(response["description"]);
+					$("#view-salary").val(response["description"]);
 					$("#modal-view").modal('show');
 				},
 				error: function(response){
@@ -170,5 +207,63 @@
 				}
 			});
 		}
+
+		function edit(id){
+			$.ajax({
+				"url": "/post/get/"+id,
+				"type": "GET",
+				success: function(response){
+					$("#edit-title").val(response["title"]);
+					$("#edit-description").val(response["description"]);
+					$("#edit-salary").val(response["description"]);
+					$("#edit-category").val(response["category_id"]);
+					$("#edit-location").val(response["location_id"]);
+					$("#post-id").val(response["id"]);
+					$("#modal-edit").modal('show');
+				},
+				error: function(response){
+					alert("error");
+				}
+			});
+		}
+
+		function remove(id){
+				$.ajax({
+					"headers":{
+		    	  		'X-CSRF-TOKEN': "{{ csrf_token() }}"
+		    	  	},
+		    	  	"url": "/post/"+id,
+				    "type": "delete",
+				    success: function(response){
+				    	if(response['msg']=='1'){
+				    		alert("success");
+				    		window.location.replace("/admin/home");
+				    	}
+				    },
+				    error: function(response){
+				    	alert("error");
+				    }
+				});
+		}
+
+		$("#btn-update").on("click", function(){
+				$.ajax({
+					"headers":{
+		    	  		'X-CSRF-TOKEN': "{{ csrf_token() }}"
+		    	  	},
+		    	  	"url": "/post/"+$("#post-id").val(),
+				    "type": "put",
+				    "data": $("#form-edit").serialize(),
+				    success: function(response){
+				    	if(response['msg']=='1'){
+				    		alert("success");
+				    		window.location.replace("/admin/home");
+				    	}
+				    },
+				    error: function(response){
+				    	alert("error");
+				    }
+				});
+		});
 	</script>
 @endsection

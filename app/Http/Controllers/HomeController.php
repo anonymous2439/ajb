@@ -65,10 +65,23 @@ class HomeController extends Controller
     public function getPosts(Request $request){
     	if($request->ajax()){
     		$posts = Post::all();
+            if($request->has('category') && $request->get('category') != '0'){
+                $posts = $posts->where('category_id', $request->get('category'));
+            }
+            if($request->has('location') && $request->get('location') != '0'){
+                $posts = $posts->where('location_id', $request->get('location'));
+            }
     		$data = [];
     		foreach($posts as $post){
     			$date = date($post->created_at);
-    			array_push($data, ['', $post->id, '<a href="#" onclick="getPost('.$post->id.');">'.$post->title.'</a>', $post->location->name, $post->salary, $date]);
+    			array_push($data, ['', 
+                    $post->id, 
+                    '<a href="#" onclick="getPost('.$post->id.');">'.$post->title.'</a>', 
+                    $post->location->name, 
+                    $post->salary, 
+                    $date,
+                    '<button class="btn btn-warning" onclick="edit('.$post->id.');">Edit</button> <button class="btn btn-danger" onclick="remove('.$post->id.');">Delete</button>',
+                ]);
 
         	}
         	return ["data"=> $data];
@@ -101,6 +114,7 @@ class HomeController extends Controller
                     'as' => $data['file']->getClientOriginalName(),
                     'mime' => $data['file']->getMimeType()));
 		});
+        error_log('i got here');
 		return redirect('/jobsearch')->with(['success'=>'Your application has been sent!']);
     }
 
